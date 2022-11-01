@@ -22,7 +22,7 @@ class FacturaController extends Controller
             $item->detalle = isset($detalle_factura) ? $detalle_factura : null;
         }
 
-        return response()->json(['facturas' => $all_factura], 200);
+        return response()->json($all_factura, 200);
     }
 
     public function getFacturaByCode($codigo)
@@ -33,7 +33,7 @@ class FacturaController extends Controller
             $detalle_factura = DetalleFactura::where('fac_dfac', '=', $factura->cod_fac)->first();
             $factura->detalle = isset($detalle_factura) ? $detalle_factura : null;
 
-            return response()->json(['facturas' => $factura], 404);
+            return response()->json($factura, 404);
         }
 
         return response()->json(['mensaje' => 'Factura no encontrada'], 404);

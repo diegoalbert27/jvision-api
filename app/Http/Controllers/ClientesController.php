@@ -12,7 +12,7 @@ class ClientesController extends Controller
         $clientes = new Clientes();
         $all_clientes = $clientes->all();
 
-        return response()->json(['clientes' => $all_clientes], 200);
+        return response()->json($all_clientes, 200);
     }
 
     public function getById($id)
@@ -20,7 +20,7 @@ class ClientesController extends Controller
         $cliente = Clientes::where('cod_cli', '=', $id)->first();
 
         if (isset($cliente)) {
-            return response()->json(['cliente' => $cliente], 200);
+            return response()->json($cliente, 200);
         }
 
         return response()->json(['mensaje' => 'Cliente no encontrado'], 404);

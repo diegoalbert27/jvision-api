@@ -18,7 +18,7 @@ class ArticulosController extends Controller
             $articulo->tip_art = isset($tipo_articulo) ? $tipo_articulo : '';
         }
 
-        return response()->json(['articulos' => $all_articulos], 200);
+        return response()->json($all_articulos, 200);
     }
 
     public function getByCode($codigo) {
@@ -27,7 +27,7 @@ class ArticulosController extends Controller
         if (isset($articulo)) {
             $tipo_articulo = Tipo::where('cod_tip', '=', $articulo->tip_art)->first();
             $articulo->tip_art = isset($tipo_articulo) ? $tipo_articulo : '';
-            return response()->json(['articulo' => $articulo], 200);
+            return response()->json($articulo, 200);
         }
 
         return response()->json(['mensaje' => 'Articulo no encontrado'], 404);

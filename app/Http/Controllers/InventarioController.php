@@ -19,7 +19,7 @@ class InventarioController extends Controller
             $product_inventario->alm_inv = isset($almacen) ? $almacen : '';
         }
 
-        return response()->json(['inventario' => $all_inventario], 200);
+        return response()->json($all_inventario, 200);
     }
 
     public function getByProduct($product)
@@ -30,7 +30,7 @@ class InventarioController extends Controller
             $almacen = Almacen::where('cod_alm', '=', $inventario->alm_inv)->first();
             $inventario->alm_inv = isset($almacen) ? $almacen : '';
 
-            return response()->json(['product_inventario' => $inventario], 200);
+            return response()->json($inventario, 200);
         }
 
         return response()->json(['mensaje' => 'Producto no encontrado'], 404);
