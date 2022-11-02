@@ -6,23 +6,74 @@ use App\Models\Articulos;
 use App\Models\Clientes;
 use App\Models\DetalleFactura;
 use App\Models\Factura;
+use App\Models\FormaPago;
 use App\Models\Inventario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FacturaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $factura = new Factura();
-        $all_factura = $factura->all();
+        $tipo = $request->query('tipo');
 
-        foreach($all_factura as $item)
-        {
-            $detalle_factura = DetalleFactura::where('fac_dfac', '=', $item->cod_fac)->first();
-            $item->detalle = isset($detalle_factura) ? $detalle_factura : null;
+        $factura = new Factura();
+
+        if (!isset($tipo)) {
+            $all_factura = $factura->all();
+
+            foreach ($all_factura as $item) {
+                $detalle_factura = DetalleFactura::where('fac_dfac', '=', $item->cod_fac)->first();
+                $item->detalle = isset($detalle_factura) ? $detalle_factura : null;
+            }
+
+            return response()->json($all_factura, 200);
         }
 
-        return response()->json($all_factura, 200);
+        $fecha_inicio = $request->query('fechaInicio') ?? date('Y-m-d');
+        $fecha_final = $request->query('fechaFinal') ?? date('Y-m-d');
+
+        if ($tipo === 'De Contado' && $request->input('modo', '') === 'forma-de-pago') {
+            $facturas = DB::table('tab_factura')
+                ->where('mod_fac', '=', 'FACT')
+                ->where('tip_fac', '=', $tipo)
+                ->whereBetween('fec_fac', [$fecha_inicio, $fecha_final])
+                ->orderByDesc('fec_fac')->get();
+
+            // foreach ($facturas as $item) {
+            //     $forma_factura_by_factura = FormaPago::where('fac_for', '=', $item->cod_fac)->first();
+
+            //     $item->cod_fac = $forma_factura_by_factura;
+            // }
+
+            return response()->json([count($facturas)], 200);
+        }
+
+        if ($tipo === 'anuladas') {
+            $facturas_anuladas = DB::table('tab_factura')
+                ->where('anu_fac', '=', 1)
+                ->whereBetween('fec_fac', [$fecha_inicio, $fecha_final])
+                ->orderByDesc('fec_fac')->get();
+
+            return response()->json($facturas_anuladas, 200);
+        }
+
+        if ($tipo === 'devueltas') {
+            $facturas_devueltas = DB::table('tab_factura')
+                ->where('anu_fac', '=', 2)
+                ->whereBetween('fec_fac', [$fecha_inicio, $fecha_final])
+                ->orderByDesc('fec_fac')->get();
+
+            return response()->json($facturas_devueltas, 200);
+        }
+
+        $facturas_de_contado = DB::table('tab_factura')
+            ->where('tip_fac', '=', $tipo)
+            ->where('anu_fac', '=', 0)
+            ->whereBetween('fec_fac', [$fecha_inicio, $fecha_final])
+            ->orderByDesc('fec_fac')->get();
+
+        return response()->json($facturas_de_contado, 200);
     }
 
     public function getFacturaByCode($codigo)
@@ -106,7 +157,7 @@ class FacturaController extends Controller
 
         $detalles = [];
 
-        foreach($articulos as $articulo) {
+        foreach ($articulos as $articulo) {
             $id_articulo = $articulo['art_dfac'];
             $articulo_encontrado = Articulos::where('cod_art', '=', $id_articulo)->first();
 
@@ -144,7 +195,7 @@ class FacturaController extends Controller
 
         $factura->save();
 
-        foreach($detalles as $detalle) {
+        foreach ($detalles as $detalle) {
             $detalle->fac_dfac = $factura->id;
             $detalle->save();
         }

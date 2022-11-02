@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticulosController;
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\OrdenController;
 use App\Http\Controllers\SanctumAuthController;
 
 use Illuminate\Http\Request;
@@ -48,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/factura', [FacturaController::class, 'index']);
     Route::get('/factura/{codigo}', [FacturaController::class, 'getFacturaByCode']);
     Route::post('/factura/new', [FacturaController::class, 'postFactura']);
+
+    //Rutas Ordenes
+    Route::get('/ordenes', [OrdenController::class, 'index']);
 
     // Rutas Clientes
     Route::get('/clientes', [ClientesController::class, 'index']);
